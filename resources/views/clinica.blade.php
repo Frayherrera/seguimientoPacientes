@@ -157,7 +157,8 @@
                     <a href="#nosotros" class="text-gray-700 hover:text-blue-600 transition-colors">Nosotros</a>
                     <a href="#servicios" class="text-gray-700 hover:text-blue-600 transition-colors">Servicios</a>
                     <a href="#contacto" class="text-gray-700 hover:text-blue-600 transition-colors">Contacto</a>
-                    <a href="{{ route('login') }}" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <a href="{{ route('login') }}"
+                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Iniciar Sesión
                     </a>
                 </div>
@@ -460,7 +461,8 @@
             });
         });
     </script>
-
+    @vite(['resources/js/app.js'])
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 
 </html>
