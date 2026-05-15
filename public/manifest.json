@@ -1,6 +1,6 @@
 {
-    "name": "MobileApp",
-    "short_name": "MobileApp",
+    "name": "SeguimintoApp",
+    "short_name": "SeguimientoApp",
     "description": "",
     "start_url": "/",
     "display": "standalone",
