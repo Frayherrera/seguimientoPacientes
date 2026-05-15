@@ -17,6 +17,17 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+// Ruta de búsqueda
+Route::get('/buscar', function (\Illuminate\Http\Request $request) {
+    $query = $request->get('q');
+    return view('buscar', ['query' => $query]);
+})->name('buscar')->middleware('auth');
+
+// Ruta de logout
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/');
+})->name('logout');
 
 
 // Dashboard routes
@@ -32,20 +43,5 @@ Route::middleware(['auth'])->prefix('dashboard')->name('dashboard.')->group(func
     Route::view('/reportes', 'dashboard.reportes')->name('reportes');
     Route::view('/configuracion', 'dashboard.configuracion')->name('configuracion');
 });
-
-
-// Ruta de búsqueda
-Route::get('/buscar', function (\Illuminate\Http\Request $request) {
-    $query = $request->get('q');
-    return view('buscar', ['query' => $query]);
-})->name('buscar')->middleware('auth');
-
-// Ruta de logout
-Route::post('/logout', function () {
-    Auth::logout();
-    return redirect('/');
-})->name('logout');
-
-
 
 require __DIR__ . '/auth.php';
