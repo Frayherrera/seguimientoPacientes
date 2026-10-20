@@ -13,12 +13,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->foreignId('role_id')->constrained();
+            $table->string('nombre', 100);
+            $table->string('apellidos', 100);
             $table->string('email')->unique();
+            $table->string('telefono', 20)->nullable();
+            $table->string('especialidad', 150)->nullable(); // Para médicos
+            $table->string('registro_medico', 50)->nullable(); // Nº registro profesional
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->boolean('es_activo')->default(true);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
