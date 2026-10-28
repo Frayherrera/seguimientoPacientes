@@ -7,6 +7,8 @@ use App\Models\Cita;
 use App\Models\HistoriaClinica;
 use App\Models\Paciente;
 use App\Models\TipoEnfermedad;
+use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -113,9 +115,9 @@ class DashboardController extends Controller
     /**
      * Últimos eventos del sistema (pacientes, citas, alertas y controles).
      *
-     * @return \Illuminate\Support\Collection<int, array{icono: string, color: string, titulo: string, fecha: \Carbon\Carbon}>
+     * @return Collection<int, array{icono: string, color: string, titulo: string, fecha: Carbon}>
      */
-    private function actividadReciente(): \Illuminate\Support\Collection
+    private function actividadReciente(): Collection
     {
         $eventos = collect();
 
@@ -163,9 +165,9 @@ class DashboardController extends Controller
      * Últimos pacientes registrados con su enfermedad, último control y
      * nivel de riesgo derivado de sus alertas sin leer.
      *
-     * @return \Illuminate\Support\Collection<int, array<string, mixed>>
+     * @return Collection<int, array<string, mixed>>
      */
-    private function ultimosPacientes(): \Illuminate\Support\Collection
+    private function ultimosPacientes(): Collection
     {
         $pacientes = Paciente::with('enfermedades')->latest('created_at')->limit(5)->get();
 
@@ -191,7 +193,7 @@ class DashboardController extends Controller
                 'enfermedad' => $paciente->enfermedades->first()?->nombre ?? 'Sin enfermedades registradas',
                 'estado' => $paciente->estado,
                 'ultimo_control' => isset($ultimosControles[$paciente->id])
-                    ? \Carbon\Carbon::parse($ultimosControles[$paciente->id])->format('d/m/Y')
+                    ? Carbon::parse($ultimosControles[$paciente->id])->format('d/m/Y')
                     : 'Sin controles',
                 'riesgo' => match (true) {
                     $severidades->contains('Crítico') => 'Alto',

@@ -61,7 +61,7 @@ test('el dashboard requiere autenticación', function () {
 
 test('el dashboard muestra estadísticas reales', function () {
     Paciente::factory()->create(); // activo, registrado hoy
-    Paciente::factory()->inactivo();
+    Paciente::factory()->inactivo()->create();
 
     $this->actingAs(User::factory()->create())
         ->get(route('dashboard.index'))

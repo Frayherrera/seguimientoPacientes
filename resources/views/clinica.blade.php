@@ -137,9 +137,9 @@
                     <a href="#inicio" class="text-gray-700 hover:text-blue-600 transition-colors">Inicio</a>
                     <a href="#servicios" class="text-gray-700 hover:text-blue-600 transition-colors">Servicios</a>
                     <a href="#contacto" class="text-gray-700 hover:text-blue-600 transition-colors">Contacto</a>
-                    <a href="{{ route('login') }}"
+                    <a href="{{ auth()->check() ? route('dashboard.index') : route('login') }}"
                         class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Iniciar Sesión
+                        {{ auth()->check() ? 'Entrar al Sistema' : 'Iniciar Sesión' }}
                     </a>
                 </div>
 
@@ -157,9 +157,9 @@
                     <a href="#nosotros" class="text-gray-700 hover:text-blue-600 transition-colors">Nosotros</a>
                     <a href="#servicios" class="text-gray-700 hover:text-blue-600 transition-colors">Servicios</a>
                     <a href="#contacto" class="text-gray-700 hover:text-blue-600 transition-colors">Contacto</a>
-                    <a href="{{ route('login') }}"
+                    <a href="{{ auth()->check() ? route('dashboard.index') : route('login') }}"
                         class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                        Iniciar Sesión
+                        {{ auth()->check() ? 'Entrar al Sistema' : 'Iniciar Sesión' }}
                     </a>
                 </div>
             </div>
@@ -193,9 +193,9 @@
                             Solicitar Demo
                             <i class="fas fa-chevron-right w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
                         </a>
-                        <a href="{{ route('login') }}"
+                        <a href="{{ auth()->check() ? route('dashboard.index') : route('login') }}"
                             class="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-lg hover:border-blue-600 hover:text-blue-600 transition-colors text-center">
-                            Ingresar al Sistema
+                            {{ auth()->check() ? 'Entrar al Sistema' : 'Ingresar al Sistema' }}
                         </a>
                     </div>
                 </div>
