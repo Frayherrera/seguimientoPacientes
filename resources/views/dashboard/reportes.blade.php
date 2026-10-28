@@ -3,378 +3,391 @@
 @section('title', 'Reportes - Clínica Aguachica')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-            <h1 class="text-3xl font-semibold text-gray-900">Reportes</h1>
-            <p class="text-gray-500 mt-1">Análisis y estadísticas del sistema</p>
-        </div>
-        <div class="flex gap-3">
-            <button id="exportAllBtn" class="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+    @php
+        $exportParams = array_filter([
+            'periodo' => $filtros['periodo'] ?? null,
+            'desde' => $filtros['desde'] ?? null,
+            'hasta' => $filtros['hasta'] ?? null,
+        ]);
+    @endphp
+
+    <div class="space-y-6">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-semibold text-gray-900">Reportes</h1>
+                <p class="text-gray-500 mt-1">Análisis y estadísticas del sistema</p>
+            </div>
+            <a href="{{ route('dashboard.reportes.export', array_merge(['tipo' => 'resumen'], $exportParams)) }}"
+                class="flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
                 <i class="fas fa-download w-5 h-5"></i>
-                Exportar Todo
-            </button>
-            <button id="scheduleReportBtn" class="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                <i class="fas fa-clock w-5 h-5"></i>
-                Programar Reporte
-            </button>
+                Exportar resumen CSV
+            </a>
         </div>
-    </div>
 
-    <!-- Date Range Filter -->
-    <div class="bg-white rounded-xl border border-gray-200 p-4">
-        <div class="flex flex-col lg:flex-row gap-4 items-end">
-            <div class="flex-1">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Período</label>
-                <select id="periodSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="month">Este mes</option>
-                    <option value="quarter">Este trimestre</option>
-                    <option value="year">Este año</option>
-                    <option value="custom">Personalizado</option>
-                </select>
-            </div>
-            <div id="customDateRange" class="flex-1 hidden">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Rango de fechas</label>
-                <div class="flex gap-3">
-                    <input type="date" id="startDate" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <input type="date" id="endDate" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <!-- Filtro de período -->
+        <div class="bg-white rounded-xl border border-gray-200 p-4">
+            <form action="{{ route('dashboard.reportes') }}" method="GET"
+                class="flex flex-col lg:flex-row gap-4 items-end">
+                <div class="flex-1">
+                    <label for="periodo" class="block text-sm font-medium text-gray-700 mb-1">Período</label>
+                    <select id="periodo" name="periodo"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="mes" @selected(($filtros['periodo'] ?? 'mes') === 'mes')>Este mes</option>
+                        <option value="trimestre" @selected(($filtros['periodo'] ?? '') === 'trimestre')>Este trimestre</option>
+                        <option value="anio" @selected(($filtros['periodo'] ?? '') === 'anio')>Este año</option>
+                        <option value="personalizado" @selected(($filtros['periodo'] ?? '') === 'personalizado')>Personalizado</option>
+                    </select>
+                </div>
+                <div id="customDateRange" class="flex-1 {{ ($filtros['periodo'] ?? 'mes') === 'personalizado' ? '' : 'hidden' }}">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Rango de fechas</label>
+                    <div class="flex gap-3">
+                        <input type="date" name="desde" value="{{ $filtros['desde'] ?? '' }}" required
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" name="hasta" value="{{ $filtros['hasta'] ?? '' }}" required
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <button type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i class="fas fa-filter mr-2"></i> Aplicar
+                </button>
+            </form>
+            <p class="text-xs text-gray-500 mt-3">
+                <i class="far fa-calendar-alt mr-1"></i> {{ $etiquetaPeriodo }}
+            </p>
+        </div>
+
+        @if ($errors->any())
+            <div class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 rounded-lg px-4 py-3">
+                <i class="fas fa-exclamation-circle mt-0.5"></i>
+                <div>
+                    <p class="font-medium">Corrige los siguientes errores:</p>
+                    <ul class="list-disc list-inside text-sm mt-1">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
                 </div>
             </div>
-            <button id="applyFilterBtn" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-filter mr-2"></i> Aplicar
-            </button>
-        </div>
-    </div>
+        @endif
 
-    <!-- Report Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        @php
-            $reportes = [
-                ['title' => 'Reporte de Pacientes', 'description' => 'Estadísticas generales de pacientes', 'icon' => 'fa-chart-line', 'color' => 'blue', 'date' => date('F Y'), 'type' => 'patients'],
-                ['title' => 'Reporte de Citas', 'description' => 'Análisis de citas programadas', 'icon' => 'fa-calendar', 'color' => 'green', 'date' => date('F Y'), 'type' => 'appointments'],
-                ['title' => 'Reporte de Enfermedades', 'description' => 'Prevalencia de enfermedades', 'icon' => 'fa-chart-bar', 'color' => 'purple', 'date' => date('F Y'), 'type' => 'diseases'],
-                ['title' => 'Reporte de Seguimiento', 'description' => 'Control de pacientes crónicos', 'icon' => 'fa-stethoscope', 'color' => 'orange', 'date' => date('F Y'), 'type' => 'tracking'],
-                ['title' => 'Reporte Financiero', 'description' => 'Ingresos y facturación', 'icon' => 'fa-chart-pie', 'color' => 'red', 'date' => date('F Y'), 'type' => 'financial'],
-                ['title' => 'Reporte de Calidad', 'description' => 'Indicadores de satisfacción', 'icon' => 'fa-star', 'color' => 'yellow', 'date' => date('F Y'), 'type' => 'quality'],
-            ];
-        @endphp
-
-        @foreach($reportes as $reporte)
+        <!-- Tarjetas de reportes -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group hover:-translate-y-1">
-                <div class="mb-4 p-3 rounded-lg inline-block
-                    {{ $reporte['color'] === 'blue' ? 'bg-blue-100 text-blue-600' : '' }}
-                    {{ $reporte['color'] === 'green' ? 'bg-green-100 text-green-600' : '' }}
-                    {{ $reporte['color'] === 'purple' ? 'bg-purple-100 text-purple-600' : '' }}
-                    {{ $reporte['color'] === 'orange' ? 'bg-orange-100 text-orange-600' : '' }}
-                    {{ $reporte['color'] === 'red' ? 'bg-red-100 text-red-600' : '' }}
-                    {{ $reporte['color'] === 'yellow' ? 'bg-yellow-100 text-yellow-600' : '' }}">
-                    <i class="fas {{ $reporte['icon'] }} text-xl"></i>
+                <div class="mb-4 p-3 rounded-lg inline-block bg-blue-100 text-blue-600">
+                    <i class="fas fa-chart-line text-xl"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ $reporte['title'] }}</h3>
-                <p class="text-sm text-gray-600 mb-4">{{ $reporte['description'] }}</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs text-gray-500">{{ $reporte['date'] }}</span>
-                    <button onclick="generateReport('{{ $reporte['type'] }}')" 
-                            class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 group">
-                        Generar
-                        <i class="fas fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
-                    </button>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Reporte de Pacientes</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ $pacientes['nuevos'] }}</p>
+                <p class="text-sm text-gray-600">nuevos en el período</p>
+                <p class="text-xs text-gray-500 mt-2">
+                    {{ $pacientes['total'] }} en total · {{ $pacientes['activos'] }} activos
+                </p>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-xs text-gray-500">{{ $etiquetaPeriodo }}</span>
+                    <a href="{{ route('dashboard.reportes.export', array_merge(['tipo' => 'pacientes'], $exportParams)) }}"
+                        class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                        CSV
+                        <i class="fas fa-download text-xs"></i>
+                    </a>
                 </div>
             </div>
-        @endforeach
-    </div>
 
-    <!-- Quick Stats Preview -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Gráfico de pacientes por mes (vista previa) -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Pacientes por Mes</h3>
-                <button onclick="generateReport('patients')" class="text-xs text-blue-600 hover:text-blue-700">
-                    Ver completo →
-                </button>
+            <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group hover:-translate-y-1">
+                <div class="mb-4 p-3 rounded-lg inline-block bg-green-100 text-green-600">
+                    <i class="fas fa-calendar text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Reporte de Citas</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ $citas['total'] }}</p>
+                <p class="text-sm text-gray-600">citas en el período</p>
+                <p class="text-xs text-gray-500 mt-2">
+                    {{ $citas['atendidas'] }} atendidas · {{ $citas['no_presentadas'] }} no presentadas
+                </p>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-xs text-gray-500">{{ $etiquetaPeriodo }}</span>
+                    <a href="{{ route('dashboard.reportes.export', array_merge(['tipo' => 'citas'], $exportParams)) }}"
+                        class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                        CSV
+                        <i class="fas fa-download text-xs"></i>
+                    </a>
+                </div>
             </div>
-            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                <div class="text-center text-gray-400">
-                    <i class="fas fa-chart-line text-4xl mb-2 block"></i>
-                    <p class="text-sm">Vista previa del gráfico</p>
-                    <p class="text-xs">Genere el reporte para ver datos detallados</p>
+
+            <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group hover:-translate-y-1">
+                <div class="mb-4 p-3 rounded-lg inline-block bg-purple-100 text-purple-600">
+                    <i class="fas fa-chart-bar text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Reporte de Enfermedades</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ $enfermedades['total_diagnosticos_activos'] }}</p>
+                <p class="text-sm text-gray-600">diagnósticos activos</p>
+                <p class="text-xs text-gray-500 mt-2">
+                    {{ $enfermedades['lista']->count() }} enfermedades registradas
+                </p>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-xs text-gray-500">Prevalencia actual</span>
+                    <a href="{{ route('dashboard.reportes.export', array_merge(['tipo' => 'enfermedades'], $exportParams)) }}"
+                        class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                        CSV
+                        <i class="fas fa-download text-xs"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all group hover:-translate-y-1">
+                <div class="mb-4 p-3 rounded-lg inline-block bg-orange-100 text-orange-600">
+                    <i class="fas fa-stethoscope text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Reporte de Seguimiento</h3>
+                <p class="text-3xl font-bold text-gray-900">{{ $seguimiento['controles'] }}</p>
+                <p class="text-sm text-gray-600">controles en el período</p>
+                <p class="text-xs text-gray-500 mt-2">
+                    {{ $seguimiento['alertas'] }} alertas · {{ $seguimiento['alertas_criticas'] }} críticas
+                </p>
+                <div class="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
+                    <span class="text-xs text-gray-500">{{ $etiquetaPeriodo }}</span>
+                    <a href="{{ route('dashboard.reportes.export', array_merge(['tipo' => 'seguimiento'], $exportParams)) }}"
+                        class="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1">
+                        CSV
+                        <i class="fas fa-download text-xs"></i>
+                    </a>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico de distribución de citas -->
-        <div class="bg-white rounded-xl border border-gray-200 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Distribución de Citas</h3>
-                <button onclick="generateReport('appointments')" class="text-xs text-blue-600 hover:text-blue-700">
-                    Ver completo →
-                </button>
-            </div>
-            <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-                <div class="text-center text-gray-400">
-                    <i class="fas fa-chart-pie text-4xl mb-2 block"></i>
-                    <p class="text-sm">Vista previa del gráfico</p>
-                    <p class="text-xs">Genere el reporte para ver datos detallados</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Recent Reports -->
-    <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-gray-900">Reportes Recientes</h3>
-                <button id="clearHistoryBtn" class="text-sm text-red-600 hover:text-red-700">
-                    Limpiar historial
-                </button>
-            </div>
-        </div>
-        <div class="divide-y divide-gray-200">
-            @php
-                $reportesRecientes = [
-                    ['name' => 'Reporte Mensual de Pacientes - Abril 2026', 'date' => '2026-05-01', 'size' => '2.4 MB', 'type' => 'patients', 'status' => 'completado'],
-                    ['name' => 'Análisis de Citas - Marzo 2026', 'date' => '2026-04-15', 'size' => '1.8 MB', 'type' => 'appointments', 'status' => 'completado'],
-                    ['name' => 'Estadísticas Generales - Q1 2026', 'date' => '2026-04-01', 'size' => '3.2 MB', 'type' => 'general', 'status' => 'completado'],
-                    ['name' => 'Reporte de Enfermedades - Febrero 2026', 'date' => '2026-03-01', 'size' => '1.5 MB', 'type' => 'diseases', 'status' => 'completado'],
-                    ['name' => 'Seguimiento de Pacientes - Enero 2026', 'date' => '2026-02-01', 'size' => '2.1 MB', 'type' => 'tracking', 'status' => 'completado'],
-                ];
-            @endphp
-
-            @foreach($reportesRecientes as $reporte)
-                <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors group">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 rounded-lg
-                            {{ $reporte['type'] === 'patients' ? 'bg-blue-100' : '' }}
-                            {{ $reporte['type'] === 'appointments' ? 'bg-green-100' : '' }}
-                            {{ $reporte['type'] === 'diseases' ? 'bg-purple-100' : '' }}
-                            {{ $reporte['type'] === 'tracking' ? 'bg-orange-100' : '' }}
-                            {{ $reporte['type'] === 'general' ? 'bg-gray-100' : '' }}">
-                            <i class="fas 
-                                {{ $reporte['type'] === 'patients' ? 'fa-chart-line' : '' }}
-                                {{ $reporte['type'] === 'appointments' ? 'fa-calendar' : '' }}
-                                {{ $reporte['type'] === 'diseases' ? 'fa-chart-bar' : '' }}
-                                {{ $reporte['type'] === 'tracking' ? 'fa-stethoscope' : '' }}
-                                {{ $reporte['type'] === 'general' ? 'fa-file-alt' : '' }} 
-                                text-gray-600"></i>
+        <!-- Gráficos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Pacientes registrados por mes -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">Pacientes por Mes</h3>
+                <p class="text-xs text-gray-500 mb-4">Registros de los últimos 12 meses</p>
+                <div class="h-48">
+                    @if (collect($pacientesPorMes)->sum('total') === 0)
+                        <div class="h-full flex flex-col items-center justify-center text-gray-400">
+                            <i class="fas fa-chart-line text-4xl mb-2 block"></i>
+                            <p class="text-sm">No hay pacientes registrados en los últimos 12 meses</p>
                         </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-900">{{ $reporte['name'] }}</p>
-                            <p class="text-xs text-gray-500">
-                                <i class="far fa-calendar-alt mr-1"></i> {{ \Carbon\Carbon::parse($reporte['date'])->format('d/m/Y') }}
-                                <span class="mx-1">•</span>
-                                <i class="far fa-file mr-1"></i> {{ $reporte['size'] }}
-                            </p>
+                    @else
+                        <div class="h-full flex items-end gap-1.5">
+                            @foreach ($pacientesPorMes as $barra)
+                                <div class="flex-1 h-full flex flex-col items-center justify-end gap-1"
+                                    title="{{ $barra['etiqueta'] }}: {{ $barra['total'] }} pacientes nuevos">
+                                    <span class="text-xs text-gray-600 font-medium">{{ $barra['total'] ?: '' }}</span>
+                                    <div class="w-full bg-blue-500 hover:bg-blue-600 rounded-t transition-colors"
+                                        style="height: {{ $barra['porcentaje'] }}%"></div>
+                                    <span class="text-xs text-gray-500">{{ $barra['etiqueta'] }}</span>
+                                </div>
+                            @endforeach
                         </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="downloadReport('{{ $reporte['name'] }}')" 
-                                class="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                                title="Descargar">
-                            <i class="fas fa-download text-gray-500 group-hover:text-blue-600"></i>
-                        </button>
-                        <button onclick="shareReport('{{ $reporte['name'] }}')" 
-                                class="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                                title="Compartir">
-                            <i class="fas fa-share-alt text-gray-500 group-hover:text-green-600"></i>
-                        </button>
-                        <button onclick="deleteReport(this)" 
-                                class="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
-                                title="Eliminar">
-                            <i class="fas fa-trash-alt text-gray-500 group-hover:text-red-600"></i>
-                        </button>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-        
-        <!-- Ver más -->
-        <div class="p-4 border-t border-gray-200 text-center">
-            <button id="viewAllReports" class="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Ver todos los reportes
-                <i class="fas fa-arrow-right ml-1"></i>
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal para Programar Reporte -->
-<div id="scheduleModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 animate-fade-in">
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 transform transition-all">
-        <div class="flex items-center justify-between p-6 border-b border-gray-200">
-            <h3 class="text-xl font-semibold text-gray-900">Programar Reporte</h3>
-            <button onclick="closeScheduleModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                <i class="fas fa-times w-6 h-6 text-xl"></i>
-            </button>
-        </div>
-        <div class="p-6 space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Reporte</label>
-                <select id="scheduleReportType" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="patients">Reporte de Pacientes</option>
-                    <option value="appointments">Reporte de Citas</option>
-                    <option value="diseases">Reporte de Enfermedades</option>
-                    <option value="tracking">Reporte de Seguimiento</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Frecuencia</label>
-                <select id="scheduleFrequency" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="daily">Diario</option>
-                    <option value="weekly">Semanal</option>
-                    <option value="monthly">Mensual</option>
-                </select>
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Formato</label>
-                <div class="flex gap-4">
-                    <label class="flex items-center">
-                        <input type="radio" name="format" value="pdf" checked class="mr-2"> PDF
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="format" value="excel" class="mr-2"> Excel
-                    </label>
-                    <label class="flex items-center">
-                        <input type="radio" name="format" value="csv" class="mr-2"> CSV
-                    </label>
+                    @endif
                 </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Correo de envío</label>
-                <input type="email" id="scheduleEmail" placeholder="correo@ejemplo.com"
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+            <!-- Distribución de citas -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-1">Distribución de Citas</h3>
+                <p class="text-xs text-gray-500 mb-4">{{ $etiquetaPeriodo }}</p>
+                @if ($citas['total'] === 0)
+                    <div class="h-48 flex flex-col items-center justify-center text-gray-400">
+                        <i class="fas fa-chart-pie text-4xl mb-2 block"></i>
+                        <p class="text-sm">No hay citas en el período seleccionado</p>
+                    </div>
+                @else
+                    @php
+                        $coloresEstado = [
+                            'Programada' => 'bg-orange-500',
+                            'Confirmada' => 'bg-blue-500',
+                            'Atendida' => 'bg-green-500',
+                            'Cancelada' => 'bg-red-500',
+                            'No Presentado' => 'bg-gray-500',
+                        ];
+                        $maximoEstado = max($citas['por_estado']->max(), 1);
+                    @endphp
+                    <div class="space-y-4">
+                        @foreach ($citas['por_estado'] as $estado => $total)
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-gray-700">{{ $estado }}</span>
+                                    <span class="text-gray-500">
+                                        {{ $total }} citas ({{ $citas['total'] > 0 ? (int) round($total / $citas['total'] * 100) : 0 }}%)
+                                    </span>
+                                </div>
+                                <div class="h-2.5 bg-gray-100 rounded-full overflow-hidden">
+                                    <div class="h-full rounded-full {{ $coloresEstado[$estado] }}"
+                                        style="width: {{ $total > 0 ? max(2, (int) round($total / $maximoEstado * 100)) : 0 }}%"></div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
-        <div class="flex gap-3 p-6 pt-0">
-            <button onclick="closeScheduleModal()"
-                    class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                Cancelar
-            </button>
-            <button onclick="saveSchedule()"
-                    class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                <i class="fas fa-save mr-2"></i> Programar
-            </button>
+
+        <!-- Paneles de detalle -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Pacientes -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Pacientes por Estado y Género</h3>
+                @php
+                    $estadosPaciente = [
+                        'Activo' => ['total' => $pacientes['activos'], 'chip' => 'bg-green-100 text-green-800'],
+                        'Inactivo' => ['total' => $pacientes['inactivos'], 'chip' => 'bg-gray-100 text-gray-700'],
+                        'Fallecido' => ['total' => $pacientes['fallecidos'], 'chip' => 'bg-red-100 text-red-800'],
+                    ];
+                @endphp
+                <div class="space-y-3">
+                    @foreach ($estadosPaciente as $estado => $datos)
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full {{ $datos['chip'] }}">
+                                {{ $estado }}
+                            </span>
+                            <div class="text-right">
+                                <span class="font-semibold text-gray-900">{{ $datos['total'] }}</span>
+                                <span class="text-xs text-gray-500 ml-1">
+                                    ({{ $pacientes['total'] > 0 ? (int) round($datos['total'] / $pacientes['total'] * 100) : 0 }}%)
+                                </span>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+                <div class="mt-4 pt-4 border-t border-gray-100">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Pacientes activos por género</p>
+                    <div class="flex gap-4 text-sm text-gray-600">
+                        <span><span class="font-semibold text-gray-900">{{ $pacientes['por_genero']['M'] ?? 0 }}</span> Masculino</span>
+                        <span><span class="font-semibold text-gray-900">{{ $pacientes['por_genero']['F'] ?? 0 }}</span> Femenino</span>
+                        <span><span class="font-semibold text-gray-900">{{ $pacientes['por_genero']['Otro'] ?? 0 }}</span> Otro</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Citas -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Citas por Tipo y Atención</h3>
+                <div class="flex items-baseline gap-2 mb-4">
+                    <span class="text-3xl font-bold text-green-600">{{ $citas['tasa_asistencia'] ?? '—' }}{{ $citas['tasa_asistencia'] !== null ? '%' : '' }}</span>
+                    <span class="text-sm text-gray-600">tasa de asistencia</span>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">Atendidas sobre citas no canceladas del período</p>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    @foreach ($citas['por_tipo'] as $tipo => $total)
+                        <div class="flex items-center justify-between py-1.5 px-3 bg-gray-50 rounded-lg">
+                            <span class="text-gray-600">{{ $tipo }}</span>
+                            <span class="font-semibold text-gray-900">{{ $total }}</span>
+                        </div>
+                    @endforeach
+                </div>
+                @if ($citas['por_medico']->isNotEmpty())
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                        <p class="text-sm font-medium text-gray-700 mb-2">Médicos con más citas</p>
+                        <ol class="space-y-1 text-sm text-gray-600">
+                            @foreach ($citas['por_medico'] as $indice => $medico)
+                                <li class="flex items-center justify-between">
+                                    <span><span class="font-medium text-gray-900">{{ $indice + 1 }}.</span> {{ $medico['nombre'] }}</span>
+                                    <span class="text-gray-500">{{ $medico['total'] }} citas</span>
+                                </li>
+                            @endforeach
+                        </ol>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Enfermedades -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Prevalencia de Enfermedades</h3>
+                @if ($enfermedades['lista']->isEmpty())
+                    <div class="py-8 text-center text-gray-400">
+                        <i class="fas fa-chart-bar text-4xl mb-2 block"></i>
+                        <p class="text-sm">No hay enfermedades registradas</p>
+                    </div>
+                @else
+                    @php
+                        $maximoEnfermedad = max($enfermedades['lista']->max('pacientes_total'), 1);
+                    @endphp
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <th class="pb-2 pr-3">Enfermedad</th>
+                                    <th class="pb-2 pr-3">CIE-10</th>
+                                    <th class="pb-2 pr-3">Pacientes</th>
+                                    <th class="pb-2 text-right">Activos</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                @foreach ($enfermedades['lista'] as $enfermedad)
+                                    <tr>
+                                        <td class="py-2 pr-3 text-gray-900">{{ $enfermedad->nombre }}</td>
+                                        <td class="py-2 pr-3 text-gray-500">{{ $enfermedad->codigo_cie10 ?? '—' }}</td>
+                                        <td class="py-2 pr-3">
+                                            <div class="flex items-center gap-2">
+                                                <span class="font-semibold text-gray-900 w-6 text-right">{{ $enfermedad->pacientes_total }}</span>
+                                                <div class="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden min-w-[40px]">
+                                                    <div class="h-full bg-purple-500 rounded-full"
+                                                        style="width: {{ $enfermedad->pacientes_total > 0 ? max(2, (int) round($enfermedad->pacientes_total / $maximoEnfermedad * 100)) : 0 }}%"></div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-2 text-right text-gray-600">{{ $enfermedad->pacientes_activos }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Seguimiento -->
+            <div class="bg-white rounded-xl border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Seguimiento y Alertas</h3>
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                    <div class="bg-orange-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-orange-600">{{ $seguimiento['controles'] }}</p>
+                        <p class="text-xs text-gray-600">Controles</p>
+                    </div>
+                    <div class="bg-blue-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-blue-600">{{ $seguimiento['pacientes'] }}</p>
+                        <p class="text-xs text-gray-600">Pacientes</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-3 text-center">
+                        <p class="text-2xl font-bold text-purple-600">{{ $seguimiento['medicos'] }}</p>
+                        <p class="text-xs text-gray-600">Médicos</p>
+                    </div>
+                </div>
+                @php
+                    $coloresSeveridad = [
+                        'Crítico' => 'bg-red-100 text-red-800',
+                        'Advertencia' => 'bg-orange-100 text-orange-800',
+                        'Info' => 'bg-blue-100 text-blue-800',
+                    ];
+                @endphp
+                <div class="space-y-3">
+                    @foreach ($seguimiento['por_severidad'] as $severidad => $total)
+                        <div class="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-full {{ $coloresSeveridad[$severidad] }}">
+                                {{ $severidad }}
+                            </span>
+                            <span class="font-semibold text-gray-900">{{ $total }} alertas</span>
+                        </div>
+                    @endforeach
+                </div>
+                <p class="text-xs text-gray-500 mt-4">
+                    {{ $seguimiento['alertas_no_leidas'] }} alertas sin leer de {{ $seguimiento['alertas'] }} en el período
+                </p>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    // Mostrar/ocultar rango de fechas personalizado
-    document.getElementById('periodSelect')?.addEventListener('change', function() {
-        const customRange = document.getElementById('customDateRange');
-        if (this.value === 'custom') {
-            customRange.classList.remove('hidden');
-        } else {
-            customRange.classList.add('hidden');
-        }
-    });
-    
-    function generateReport(type) {
-        alert(`Generando reporte de tipo: ${type}`);
-        // Aquí implementarías la generación del reporte
-        // window.location.href = `/dashboard/reportes/generar/${type}`;
-    }
-    
-    function downloadReport(name) {
-        alert(`Descargando reporte: ${name}`);
-        // Aquí implementarías la descarga del archivo
-    }
-    
-    function shareReport(name) {
-        alert(`Compartir reporte: ${name}`);
-        // Aquí implementarías el compartir
-    }
-    
-    function deleteReport(button) {
-        if (confirm('¿Estás seguro de que deseas eliminar este reporte?')) {
-            const row = button.closest('.group');
-            row.style.opacity = '0';
-            setTimeout(() => row.remove(), 300);
-        }
-    }
-    
-    // Exportar todo
-    document.getElementById('exportAllBtn')?.addEventListener('click', function() {
-        alert('Exportando todos los reportes...');
-    });
-    
-    // Programar reporte
-    document.getElementById('scheduleReportBtn')?.addEventListener('click', function() {
-        const modal = document.getElementById('scheduleModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    });
-    
-    function closeScheduleModal() {
-        const modal = document.getElementById('scheduleModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-    }
-    
-    function saveSchedule() {
-        const reportType = document.getElementById('scheduleReportType').value;
-        const frequency = document.getElementById('scheduleFrequency').value;
-        const email = document.getElementById('scheduleEmail').value;
-        
-        alert(`Reporte programado:\nTipo: ${reportType}\nFrecuencia: ${frequency}\nCorreo: ${email || 'no especificado'}`);
-        closeScheduleModal();
-    }
-    
-    // Aplicar filtro
-    document.getElementById('applyFilterBtn')?.addEventListener('click', function() {
-        const period = document.getElementById('periodSelect').value;
-        if (period === 'custom') {
-            const start = document.getElementById('startDate').value;
-            const end = document.getElementById('endDate').value;
-            alert(`Aplicando filtro: ${start} al ${end}`);
-        } else {
-            alert(`Aplicando filtro: ${period}`);
-        }
-    });
-    
-    // Limpiar historial
-    document.getElementById('clearHistoryBtn')?.addEventListener('click', function() {
-        if (confirm('¿Estás seguro de que deseas limpiar todo el historial de reportes?')) {
-            const items = document.querySelectorAll('.divide-y .group');
-            items.forEach(item => {
-                item.style.opacity = '0';
-                setTimeout(() => item.remove(), 300);
-            });
-            setTimeout(() => {
-                alert('Historial limpiado');
-            }, 300);
-        }
-    });
-    
-    // Ver todos los reportes
-    document.getElementById('viewAllReports')?.addEventListener('click', function() {
-        alert('Mostrando todos los reportes...');
-    });
-    
-    // Cerrar modal al hacer clic fuera
-    document.getElementById('scheduleModal')?.addEventListener('click', function(e) {
-        if (e.target === this) closeScheduleModal();
-    });
-</script>
-
-<style>
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-    .animate-fade-in {
-        animation: fadeIn 0.2s ease-out;
-    }
-    
-    /* Transición para eliminar reportes */
-    .group {
-        transition: opacity 0.3s ease-out;
-    }
-</style>
+    <script>
+        // Mostrar/ocultar rango de fechas personalizado
+        document.getElementById('periodo')?.addEventListener('change', function () {
+            const customRange = document.getElementById('customDateRange');
+            if (this.value === 'personalizado') {
+                customRange.classList.remove('hidden');
+                customRange.querySelectorAll('input').forEach((input) => input.required = true);
+            } else {
+                customRange.classList.add('hidden');
+                customRange.querySelectorAll('input').forEach((input) => input.required = false);
+            }
+        });
+    </script>
 @endsection

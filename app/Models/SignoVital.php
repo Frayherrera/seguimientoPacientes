@@ -9,6 +9,8 @@ class SignoVital extends Model
 {
     use HasFactory;
 
+    protected $table = 'signos_vitales';
+
     protected $fillable = [
         'historia_clinica_id',
         'paciente_id',
@@ -51,9 +53,13 @@ class SignoVital extends Model
     {
         // Calcular IMC automáticamente
         static::saving(function ($signo) {
-            if ($signo->peso && $signo->talla) {
+            if ($signo->peso && $signo->talla && $signo->talla > 0) {
                 $tallaMetros = $signo->talla / 100;
-                $signo->imc = round($signo->peso / ($tallaMetros * $tallaMetros), 2);
+                $imc = round($signo->peso / ($tallaMetros * $tallaMetros), 2);
+
+                // La columna imc es decimal(5,2) (máx. 999.99): no asignar
+                // valores que la excedan (MySQL rechazaría el INSERT)
+                $signo->imc = $imc <= 999.99 ? $imc : null;
             }
         });
     }

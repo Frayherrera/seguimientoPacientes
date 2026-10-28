@@ -160,15 +160,15 @@
                     <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
                         <div class="hidden sm:block text-right">
                             <p class="text-sm font-medium text-gray-900">
-                                {{ Auth::user()->name ?? 'Dr. Admin' }}
+                                {{ Auth::user()->nombre_completo ?? 'Dr. Admin' }}
                             </p>
                             <p class="text-xs text-gray-500">
-                                {{ Auth::user()->role ?? 'Administrador' }}
+                                {{ Auth::user()->role?->nombre ?? 'Administrador' }}
                             </p>
                         </div>
                         <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
                             <span class="text-white font-semibold">
-                                {{ strtoupper(substr(Auth::user()->name ?? 'DA', 0, 2)) }}
+                                {{ strtoupper(substr(Auth::user()->nombre ?? 'DA', 0, 2)) }}
                             </span>
                         </div>
                     </div>

@@ -9,6 +9,8 @@ class Prescripcion extends Model
 {
     use HasFactory;
 
+    protected $table = 'prescripciones';
+
     protected $fillable = [
         'historia_clinica_id',
         'paciente_id',

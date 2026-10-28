@@ -9,6 +9,8 @@ class HistoriaClinica extends Model
 {
     use HasFactory;
 
+    protected $table = 'historias_clinicas';
+
     protected $fillable = [
         'paciente_id',
         'medico_id',
@@ -52,5 +54,10 @@ class HistoriaClinica extends Model
     public function examenes()
     {
         return $this->hasMany(Examen::class);
+    }
+
+    public function alertas()
+    {
+        return $this->hasMany(Alerta::class);
     }
 }
