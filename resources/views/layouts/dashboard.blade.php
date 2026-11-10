@@ -67,14 +67,13 @@
     <aside id="sidebar" class="fixed top-0 left-0 z-40 h-screen w-64 bg-gray-900 sidebar-transition -translate-x-full lg:translate-x-0">
         <div class="flex h-full flex-col">
             <!-- Logo -->
-            <div class="flex items-center gap-3 border-b border-gray-800 p-6">
-                <div class="bg-blue-600 rounded-lg p-2">
-                    <i class="fas fa-heart w-6 h-6 text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-white font-semibold">Clínica Aguachica</h1>
-                    <p class="text-xs text-gray-400">Sistema de Gestión</p>
-                </div>
+            <div class="border-b border-gray-800 p-4">
+                <a href="{{ route('dashboard.index') }}"
+                   class="mx-auto block w-44 max-w-full rounded-xl bg-white p-2 shadow-sm transition-opacity hover:opacity-90">
+                    <img src="{{ asset('pwa/icons/android/launchericon-512x512.png') }}"
+                         alt="Clínica Médica Aguachica — Sistema de Gestión y Seguimiento de Pacientes Crónicos"
+                         class="w-full h-auto">
+                </a>
             </div>
 
             <!-- Menu Items -->

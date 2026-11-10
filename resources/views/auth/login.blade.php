@@ -4,19 +4,11 @@
             <!-- Logo y título -->
             <div class="text-center">
                 <div class="flex justify-center mb-6">
-                    <div class="bg-blue-600 rounded-xl p-3 shadow-lg">
-                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
-                    </div>
+                    <img src="{{ asset('pwa/icons/android/launchericon-512x512.png') }}"
+                         alt="Clínica Médica Aguachica — Sistema de Gestión y Seguimiento de Pacientes Crónicos"
+                         class="w-64 max-w-full h-auto">
                 </div>
-                <h2 class="text-3xl font-extrabold text-gray-900">
-                    Clínica Aguachica
-                </h2>
-                <p class="mt-2 text-sm text-gray-600">
-                    Sistema Inteligente de Seguimiento de Pacientes Crónicos
-                </p>
-                <p class="mt-4 text-base font-medium text-gray-700">
+                <p class="text-base font-medium text-gray-700">
                     Iniciar Sesión
                 </p>
             </div>
