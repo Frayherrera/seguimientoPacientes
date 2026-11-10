@@ -249,11 +249,12 @@
                 </div>
 
                 <label class="flex items-center gap-2 text-sm font-medium text-gray-700">
+                    {{-- El hidden va antes: si el checkbox está marcado, su "1" es el último valor y gana. --}}
+                    <input type="hidden" name="es_activo" value="0">
                     <input type="checkbox" name="es_activo" value="1" @checked(old('es_activo', true))
                         class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
                     Usuario activo (puede iniciar sesión)
                 </label>
-                <input type="hidden" name="es_activo" value="0">
 
                 <div class="flex gap-3 pt-4">
                     <button type="button" onclick="closeUserModal()"
