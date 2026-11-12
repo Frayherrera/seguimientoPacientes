@@ -98,13 +98,10 @@
                     </button>
                 </div>
 
-                <!-- Enlace de registro (opcional) -->
+                <!-- Las cuentas las crea un administrador (no hay registro público) -->
                 <div class="text-center text-sm">
                     <p class="text-gray-600">
-                        ¿No tienes una cuenta?
-                        <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                            Regístrate aquí
-                        </a>
+                        ¿No tienes una cuenta? Solicítala al administrador del sistema.
                     </p>
                 </div>
             </form>
