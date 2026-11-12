@@ -10,11 +10,13 @@
                 <h1 class="text-3xl font-semibold text-gray-900">Seguimiento Médico</h1>
                 <p class="text-gray-500 mt-1">Control y seguimiento de pacientes crónicos</p>
             </div>
+            @can('seguimiento.registrar')
             <button onclick="openControlModal()"
                 class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus w-5 h-5"></i>
                 Nuevo Control
             </button>
+            @endcan
         </div>
 
         @if (session('success'))
@@ -211,6 +213,7 @@
                                             class="p-2 hover:bg-gray-100 rounded-lg transition-colors group" title="Ver detalle">
                                             <i class="fas fa-eye text-blue-600 group-hover:text-blue-700"></i>
                                         </button>
+                                        @can('seguimiento.registrar')
                                         <button onclick="openControlModal({{ $paciente->id }}, {{ json_encode($paciente->nombre_completo) }})"
                                             class="p-2 hover:bg-gray-100 rounded-lg transition-colors group" title="Registrar control">
                                             <i class="fas fa-stethoscope text-green-600 group-hover:text-green-700"></i>
@@ -221,6 +224,7 @@
                                                 <i class="fas fa-edit text-purple-600 group-hover:text-purple-700"></i>
                                             </button>
                                         @endif
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -235,9 +239,11 @@
                                         </a>
                                     @else
                                         <p>No hay pacientes en seguimiento</p>
+                                        @can('seguimiento.registrar')
                                         <button onclick="openControlModal()" class="mt-3 text-blue-600 hover:text-blue-700 font-medium">
                                             Registrar el primer control
                                         </button>
+                                        @endcan
                                     @endif
                                 </td>
                             </tr>

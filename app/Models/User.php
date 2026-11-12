@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -49,6 +48,23 @@ class User extends Authenticatable
     public function citas()
     {
         return $this->hasMany(Cita::class, 'medico_id');
+    }
+
+    /** ¿El usuario tiene alguno de estos roles (por nombre)? */
+    public function tieneRol(string ...$nombres): bool
+    {
+        return $this->role !== null && in_array($this->role->nombre, $nombres, true);
+    }
+
+    public function esAdministrador(): bool
+    {
+        return $this->tieneRol(config('permisos.rol_administrador'));
+    }
+
+    /** Usuario activo con un rol existente y activo: requisito para usar el sistema. */
+    public function estaHabilitado(): bool
+    {
+        return $this->es_activo && $this->role !== null && $this->role->es_activo;
     }
 
     public function getNombreCompletoAttribute()

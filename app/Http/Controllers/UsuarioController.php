@@ -60,6 +60,13 @@ class UsuarioController extends Controller
                 ->with('error', 'No puedes desactivar tu propia cuenta.');
         }
 
+        // Evita que el administrador se quite a sí mismo el acceso a Usuarios
+        if ($usuario->id === auth()->id() && (int) $data['role_id'] !== (int) $usuario->role_id) {
+            return redirect()
+                ->route('dashboard.usuarios')
+                ->with('error', 'No puedes cambiar tu propio rol.');
+        }
+
         // Contraseña vacía → se mantiene la actual
         if (empty($data['password'])) {
             unset($data['password']);

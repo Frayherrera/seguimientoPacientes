@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\UsuarioHabilitado;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -21,6 +22,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // (No se puede usar config()/env() aquí: en este punto la configuración
         // todavía no está cargada, y con la config cacheada devolvería null).
         $middleware->trustProxies(at: '*');
+
+        $middleware->alias([
+            'habilitado' => UsuarioHabilitado::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

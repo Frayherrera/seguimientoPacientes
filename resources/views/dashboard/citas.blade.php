@@ -10,11 +10,13 @@
                 <h1 class="text-3xl font-semibold text-gray-900">Citas Médicas</h1>
                 <p class="text-gray-500 mt-1">Programación y gestión de citas</p>
             </div>
+            @can('citas.gestionar')
             <button onclick="openCitaModal()"
                 class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus w-5 h-5"></i>
                 Nueva Cita
             </button>
+            @endcan
         </div>
 
         @if (session('success'))
@@ -236,7 +238,7 @@
                                             class="p-2 hover:bg-gray-100 rounded-lg transition-colors group" title="Ver detalles">
                                             <i class="fas fa-eye text-blue-600 group-hover:text-blue-700"></i>
                                         </button>
-                                        @if (in_array($cita->estado, $editables))
+                                        @if (in_array($cita->estado, $editables) && auth()->user()->can('citas.gestionar'))
                                             <button onclick="editCita({{ $cita->id }})"
                                                 class="p-2 hover:bg-gray-100 rounded-lg transition-colors group" title="Editar cita">
                                                 <i class="fas fa-edit text-green-600 group-hover:text-green-700"></i>
@@ -266,9 +268,11 @@
                                         </a>
                                     @else
                                         <p>No hay citas programadas</p>
+                                        @can('citas.gestionar')
                                         <button onclick="openCitaModal()" class="mt-3 text-blue-600 hover:text-blue-700 font-medium">
                                             Programar primera cita
                                         </button>
+                                        @endcan
                                     @endif
                                 </td>
                             </tr>
@@ -436,6 +440,7 @@
 
     <script>
         const citasBaseURL = @json(route('dashboard.citas'));
+        const puedeGestionarCitas = @json(auth()->user()->can('citas.gestionar'));
         const citasData = Object.fromEntries(
             JSON.parse(document.getElementById('citas-data').textContent)
                 .map((c) => [c.id, c])
@@ -516,13 +521,14 @@
             if (!c) return;
 
             const acciones = [];
-            if (c.estado === 'Programada') {
+            // Sin permiso de gestión la vista es de solo lectura (sin cambios de estado)
+            if (puedeGestionarCitas && c.estado === 'Programada') {
                 acciones.push(formEstado(id, 'Confirmada', 'Confirmar cita', 'flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors'));
             }
-            if (c.estado === 'Confirmada') {
+            if (puedeGestionarCitas && c.estado === 'Confirmada') {
                 acciones.push(formEstado(id, 'Atendida', 'Marcar atendida', 'flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors'));
             }
-            if (['Programada', 'Confirmada'].includes(c.estado)) {
+            if (puedeGestionarCitas && ['Programada', 'Confirmada'].includes(c.estado)) {
                 acciones.push(formEstado(id, 'No Presentado', 'Marcar como no presentado', 'flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors'));
                 acciones.push(formEstado(id, 'Cancelada', '¿Cancelar esta cita?', 'flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors'));
             }

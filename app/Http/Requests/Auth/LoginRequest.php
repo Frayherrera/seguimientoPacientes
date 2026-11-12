@@ -50,6 +50,15 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Credenciales correctas pero cuenta o rol desactivados: no se permite entrar
+        if (! Auth::user()->estaHabilitado()) {
+            Auth::guard('web')->logout();
+
+            throw ValidationException::withMessages([
+                'email' => 'Tu cuenta está desactivada. Contacta al administrador del sistema.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

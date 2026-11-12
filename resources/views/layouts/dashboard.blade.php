@@ -82,15 +82,21 @@
                     @php
                         $menuItems = [
                             ['icon' => 'fa-tachometer-alt', 'label' => 'Dashboard', 'path' => route('dashboard.index')],
-                            ['icon' => 'fa-users', 'label' => 'Usuarios', 'path' => route('dashboard.usuarios')],
-                            ['icon' => 'fa-user-circle', 'label' => 'Pacientes', 'path' => route('dashboard.pacientes')],
-                            ['icon' => 'fa-heartbeat', 'label' => 'Enfermedades', 'path' => route('dashboard.enfermedades')],
-                            ['icon' => 'fa-stethoscope', 'label' => 'Seguimiento Médico', 'path' => route('dashboard.seguimiento')],
-                            ['icon' => 'fa-file-alt', 'label' => 'Historial Clínico', 'path' => route('dashboard.historial')],
-                            ['icon' => 'fa-calendar-alt', 'label' => 'Citas', 'path' => route('dashboard.citas')],
-                            ['icon' => 'fa-chart-line', 'label' => 'Reportes', 'path' => route('dashboard.reportes')],
+                            ['icon' => 'fa-users', 'label' => 'Usuarios', 'path' => route('dashboard.usuarios'), 'permiso' => 'usuarios.gestionar'],
+                            ['icon' => 'fa-user-circle', 'label' => 'Pacientes', 'path' => route('dashboard.pacientes'), 'permiso' => 'pacientes.ver'],
+                            ['icon' => 'fa-heartbeat', 'label' => 'Enfermedades', 'path' => route('dashboard.enfermedades'), 'permiso' => 'enfermedades.ver'],
+                            ['icon' => 'fa-stethoscope', 'label' => 'Seguimiento Médico', 'path' => route('dashboard.seguimiento'), 'permiso' => 'seguimiento.ver'],
+                            ['icon' => 'fa-file-alt', 'label' => 'Historial Clínico', 'path' => route('dashboard.historial'), 'permiso' => 'historial.ver'],
+                            ['icon' => 'fa-calendar-alt', 'label' => 'Citas', 'path' => route('dashboard.citas'), 'permiso' => 'citas.ver'],
+                            ['icon' => 'fa-chart-line', 'label' => 'Reportes', 'path' => route('dashboard.reportes'), 'permiso' => 'reportes.ver'],
                             ['icon' => 'fa-cog', 'label' => 'Configuración', 'path' => route('dashboard.configuracion')],
                         ];
+
+                        // Solo los módulos que el rol del usuario puede abrir (config/permisos.php)
+                        $menuItems = array_filter(
+                            $menuItems,
+                            fn ($item) => ! isset($item['permiso']) || auth()->user()?->can($item['permiso'])
+                        );
                     @endphp
 
                     @foreach($menuItems as $item)

@@ -68,7 +68,8 @@
             </button>
         </div>
 
-        <!-- Umbrales de alertas -->
+        <!-- Umbrales de alertas (solo con permiso umbrales.gestionar) -->
+        @can('umbrales.gestionar')
         <div class="bg-white rounded-xl border border-gray-200 overflow-hidden">
             <div class="p-6 border-b border-gray-200">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -203,6 +204,7 @@
                 </table>
             </div>
         </div>
+        @endcan
     </div>
 
     <!-- Modal para Nuevo/Editar Umbral -->

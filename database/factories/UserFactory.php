@@ -26,7 +26,8 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'role_id' => Role::factory(),
+            // Por defecto Administrador (acceso total); usar ->rol('Médico') para otros
+            'role_id' => fn () => Role::firstOrCreate(['nombre' => 'Administrador'])->id,
             'nombre' => fake()->firstName(),
             'apellidos' => fake()->lastName().' '.fake()->lastName(),
             'email' => fake()->unique()->safeEmail(),
@@ -38,6 +39,16 @@ class UserFactory extends Factory
             'es_activo' => true,
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Usuario con el rol indicado (por nombre, como en RolesSeeder).
+     */
+    public function rol(string $nombre): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role_id' => Role::firstOrCreate(['nombre' => $nombre])->id,
+        ]);
     }
 
     /**

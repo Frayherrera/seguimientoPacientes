@@ -10,11 +10,13 @@
                 <h1 class="text-3xl font-semibold text-gray-900">Pacientes</h1>
                 <p class="text-gray-500 mt-1">Gestión de pacientes crónicos</p>
             </div>
+            @can('pacientes.gestionar')
             <button onclick="openPatientModal()"
                 class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus w-5 h-5"></i>
                 Registrar Paciente
             </button>
+            @endcan
         </div>
 
         @if (session('success'))
@@ -183,11 +185,14 @@
                                             title="Ver detalles">
                                             <i class="fas fa-eye w-4 h-4 text-blue-600 group-hover:text-blue-700"></i>
                                         </button>
+                                        @can('pacientes.gestionar')
                                         <button type="button" onclick="editPaciente({{ $paciente->id }})"
                                             class="p-2 hover:bg-gray-100 rounded-lg transition-colors group"
                                             title="Editar paciente">
                                             <i class="fas fa-edit w-4 h-4 text-green-600 group-hover:text-green-700"></i>
                                         </button>
+                                        @endcan
+                                        @can('pacientes.eliminar')
                                         <form method="POST" action="{{ route('dashboard.pacientes.destroy', $paciente) }}"
                                             onsubmit="return confirm('¿Eliminar al paciente {{ $paciente->nombre_completo }}? Esta acción no se puede deshacer.')">
                                             @csrf
@@ -197,6 +202,7 @@
                                                 <i class="fas fa-trash w-4 h-4 text-red-600 group-hover:text-red-700"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     </div>
                                 </td>
                             </tr>
@@ -211,9 +217,11 @@
                                         </a>
                                     @else
                                         <p>No hay pacientes registrados</p>
+                                        @can('pacientes.gestionar')
                                         <button onclick="openPatientModal()" class="mt-3 text-blue-600 hover:text-blue-700 font-medium">
                                             Registrar el primer paciente
                                         </button>
+                                        @endcan
                                     @endif
                                 </td>
                             </tr>

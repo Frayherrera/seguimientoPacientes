@@ -10,11 +10,13 @@
                 <h1 class="text-3xl font-semibold text-gray-900">Enfermedades</h1>
                 <p class="text-gray-500 mt-1">Catálogo de enfermedades crónicas</p>
             </div>
+            @can('enfermedades.gestionar')
             <button onclick="openDiseaseModal()"
                 class="flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                 <i class="fas fa-plus w-5 h-5"></i>
                 Nueva Enfermedad
             </button>
+            @endcan
         </div>
 
         @if (session('success'))
@@ -123,6 +125,7 @@
                             Ver detalles
                             <i class="fas fa-chevron-right text-xs group-hover:translate-x-1 transition-transform"></i>
                         </button>
+                        @can('enfermedades.gestionar')
                         <div class="flex items-center gap-1">
                             <button type="button" onclick="editEnfermedad({{ $enfermedad->id }})"
                                 class="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="Editar enfermedad">
@@ -138,6 +141,7 @@
                                 </button>
                             </form>
                         </div>
+                        @endcan
                     </div>
                 </div>
             @empty
@@ -150,9 +154,11 @@
                         </a>
                     @else
                         <p class="text-gray-500">No hay enfermedades registradas</p>
+                        @can('enfermedades.gestionar')
                         <button onclick="openDiseaseModal()" class="mt-3 text-blue-600 hover:text-blue-700 font-medium">
                             Crear la primera enfermedad
                         </button>
+                        @endcan
                     @endif
                 </div>
             @endforelse
